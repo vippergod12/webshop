@@ -59,6 +59,23 @@ export type AdminUser = {
   username: string;
 };
 
+export type ContactStatus = "new" | "contacted" | "done" | "spam";
+
+export type Contact = {
+  id: number;
+  name: string;
+  phone: string;
+  email: string | null;
+  project_type: string | null;
+  message: string | null;
+  status: ContactStatus;
+  note: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type HomeBundle = {
   categories: Category[];
   hero: Product | null;

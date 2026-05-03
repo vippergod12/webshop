@@ -1475,7 +1475,7 @@ code {
 /* KPI */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 14px;
   margin-bottom: 28px;
 }
@@ -1492,7 +1492,6 @@ code {
 .kpi__value { font-size: 2rem; font-family: var(--font-display); }
 .kpi__link { color: var(--cyan); font-size: 0.85rem; font-weight: 600; margin-top: 6px; }
 .kpi--accent { background: var(--grad-soft); border-color: var(--cyan-soft); }
-@media (max-width: 880px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .admin-card {
   background: var(--surface);
@@ -1766,3 +1765,149 @@ code {
 }
 .login__card h1 { font-size: 1.4rem; margin: 0; }
 .login__card p { color: var(--text-soft); font-size: 0.9rem; margin: 0 0 8px; }
+
+/* ==========================================================================
+   Admin: nav badge + sort cell + contacts list (added with contacts feature)
+   ========================================================================== */
+
+/* Layout label/badge inside sidebar nav */
+.admin__nav-link { position: relative; }
+.admin__nav-label { flex: 1; }
+.admin__nav-badge {
+  background: var(--red);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+  line-height: 1.4;
+}
+.admin__nav-link.is-active .admin__nav-badge { background: var(--cyan); color: var(--bg); }
+
+/* Status pills used by reviews + contacts admin */
+.status--info { background: var(--violet-soft); color: var(--violet); }
+.status--mute { background: var(--bg-3); color: var(--text-mute); }
+
+/* Form success (positive counterpart of .form-error) */
+.form-success {
+  background: var(--green-soft);
+  color: var(--green);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  margin: 12px 0;
+}
+
+/* Sort up/down cell in admin tables */
+.sort-cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 56px;
+}
+.sort-cell__num {
+  font-size: 0.85rem;
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 0;
+}
+.sort-btn {
+  width: 28px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.sort-btn:hover:not(:disabled) {
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  transform: translateY(-1px);
+}
+.sort-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.admin-table tr.is-busy { opacity: 0.5; pointer-events: none; }
+
+/* Dashboard 2-column row */
+.admin-dashboard__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 980px) { .admin-dashboard__row { grid-template-columns: 1fr; } }
+
+/* Contact admin list (similar to review-admin-list but per-status colored) */
+.contact-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.contact-list__item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text-mute);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.contact-list__item.is-new { border-left-color: var(--amber); }
+.contact-list__item.is-contacted { border-left-color: var(--violet); }
+.contact-list__item.is-done { border-left-color: var(--green); }
+.contact-list__item.is-spam { border-left-color: var(--red); opacity: 0.65; }
+
+.contact-list__head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.contact-list__head strong { font-size: 1rem; }
+.contact-list__time { margin-left: auto; font-size: 0.82rem; }
+.contact-list__type { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 6px; }
+.contact-list__msg {
+  margin: 0 0 12px;
+  color: var(--text);
+  background: var(--bg-2);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+}
+.contact-list__note {
+  margin: 8px 0 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.contact-list__note > summary {
+  cursor: pointer;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  user-select: none;
+  list-style: none;
+}
+.contact-list__note > summary::-webkit-details-marker { display: none; }
+.contact-list__note > summary::before { content: "▸ "; display: inline-block; transition: transform 0.15s; }
+.contact-list__note[open] > summary::before { content: "▾ "; }
+.contact-list__note textarea {
+  width: 100%;
+  margin: 8px 0;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+.contact-list__foot {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  flex-wrap: wrap;
+}
+.contact-list__status-actions { display: flex; gap: 6px; flex-wrap: wrap; }

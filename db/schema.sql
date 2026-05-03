@@ -63,3 +63,23 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_approved ON reviews(is_approved);
+
+-- Contact form submissions (form đăng ký thiết kế web).
+-- status: 'new' (mới) | 'contacted' (đã liên hệ) | 'done' (đã chốt) | 'spam'
+CREATE TABLE IF NOT EXISTS contacts (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(160) NOT NULL,
+    phone VARCHAR(40) NOT NULL,
+    email VARCHAR(160),
+    project_type VARCHAR(80),
+    message TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'new',
+    note TEXT,
+    ip VARCHAR(60),
+    user_agent TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_contacts_status ON contacts(status);
+CREATE INDEX IF NOT EXISTS idx_contacts_created ON contacts(created_at DESC);

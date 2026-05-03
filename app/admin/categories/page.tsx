@@ -33,6 +33,7 @@ export default function AdminCategoriesPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reordering, setReordering] = useState<number | null>(null);
 
   async function reload() {
     setLoading(true);
@@ -47,6 +48,52 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     reload();
   }, []);
+
+  /**
+   * Đổi vị trí danh mục với hàng kế tiếp/trước đó bằng cách swap sort_order.
+   * Hai PUT call cho 2 hàng — đơn giản, không cần endpoint bulk.
+   */
+  async function move(idx: number, dir: -1 | 1) {
+    const target = idx + dir;
+    if (target < 0 || target >= list.length) return;
+    const a = list[idx];
+    const b = list[target];
+    const aOrder = a.sort_order ?? 0;
+    const bOrder = b.sort_order ?? 0;
+    // Nếu sort_order trùng nhau, vẫn swap dùng pos thay thế.
+    const newA = aOrder === bOrder ? bOrder + dir : bOrder;
+    const newB = aOrder === bOrder ? aOrder - dir : aOrder;
+
+    setReordering(a.id);
+    // Optimistic update
+    const next = [...list];
+    next[idx] = { ...a, sort_order: newA };
+    next[target] = { ...b, sort_order: newB };
+    next.sort(
+      (x, y) => (x.sort_order ?? 0) - (y.sort_order ?? 0) || x.id - y.id
+    );
+    setList(next);
+
+    try {
+      await Promise.all([
+        apiFetch(`/api/categories/${a.id}`, {
+          method: "PUT",
+          auth: true,
+          body: JSON.stringify({ sort_order: newA }),
+        }),
+        apiFetch(`/api/categories/${b.id}`, {
+          method: "PUT",
+          auth: true,
+          body: JSON.stringify({ sort_order: newB }),
+        }),
+      ]);
+    } catch (err: any) {
+      alert(err?.message || "Đổi thứ tự thất bại, đang reload...");
+      await reload();
+    } finally {
+      setReordering(null);
+    }
+  }
 
   function openCreate() {
     setForm({ ...EMPTY });
@@ -136,16 +183,43 @@ export default function AdminCategoriesPage() {
           <table className="admin-table">
             <thead>
               <tr>
+                <th style={{ width: 80 }}>Thứ tự</th>
                 <th>Danh mục</th>
                 <th>Slug</th>
                 <th>Sản phẩm</th>
-                <th>Sort</th>
                 <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
-              {list.map((c) => (
-                <tr key={c.id}>
+              {list.map((c, i) => (
+                <tr key={c.id} className={reordering === c.id ? "is-busy" : ""}>
+                  <td>
+                    <div className="sort-cell">
+                      <button
+                        type="button"
+                        className="sort-btn"
+                        onClick={() => move(i, -1)}
+                        disabled={i === 0 || reordering !== null}
+                        aria-label="Chuyển lên"
+                        title="Chuyển lên"
+                      >
+                        ▲
+                      </button>
+                      <span className="sort-cell__num" aria-label="Sort order">
+                        {c.sort_order ?? 0}
+                      </span>
+                      <button
+                        type="button"
+                        className="sort-btn"
+                        onClick={() => move(i, 1)}
+                        disabled={i === list.length - 1 || reordering !== null}
+                        aria-label="Chuyển xuống"
+                        title="Chuyển xuống"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  </td>
                   <td>
                     <div className="cell-product">
                       <img src={safeImage(c.image_url)} alt="" />
@@ -157,7 +231,6 @@ export default function AdminCategoriesPage() {
                   </td>
                   <td><code>/{c.slug}</code></td>
                   <td>{c.product_count ?? 0}</td>
-                  <td>{c.sort_order ?? 0}</td>
                   <td>
                     <button
                       type="button"
