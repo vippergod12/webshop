@@ -13,7 +13,7 @@ export default function Hero({ hero, productCount = 0 }: Props) {
         <div className="hero__copy">
           <span className="hero__eyebrow">
             <span className="hero__dot" />
-            WEBVAULT — Marketplace Next.js cao cấp
+            RISE — Reliable · Innovative · Scalable · Efficient
           </span>
           <h1 className="hero__title">
             Mua website mẫu, <span className="text-gradient">deploy 1-click</span>

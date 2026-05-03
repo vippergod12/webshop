@@ -9,7 +9,7 @@ export const PLACEHOLDER_IMG =
         </linearGradient>
       </defs>
       <rect width='800' height='600' fill='url(#g)'/>
-      <text x='50%' y='50%' fill='#64748b' font-family='sans-serif' font-size='28' text-anchor='middle' dy='.35em'>WEBVAULT</text>
+      <text x='50%' y='50%' fill='#64748b' font-family='sans-serif' font-size='28' text-anchor='middle' dy='.35em'>RISE</text>
     </svg>`
   );
 

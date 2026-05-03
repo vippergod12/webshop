@@ -1,4 +1,4 @@
--- WEBVAULT — schema Postgres (Neon serverless)
+-- RISE — schema Postgres (Neon serverless)
 
 CREATE TABLE IF NOT EXISTS admins (
     id SERIAL PRIMARY KEY,

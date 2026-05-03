@@ -67,7 +67,7 @@ async function LatestBlock() {
   return (
     <FeaturedGrid
       eyebrow="MỚI NHẤT"
-      title="Cập nhật mới nhất từ WEBVAULT"
+      title="Cập nhật mới nhất từ RISE"
       products={products}
       more={{ href: "/san-pham?sort=newest", label: "Xem thêm" }}
     />

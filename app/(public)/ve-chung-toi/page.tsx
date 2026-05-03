@@ -5,7 +5,7 @@ import { SITE_NAME } from "@/lib/seo/siteConfig";
 export const metadata: Metadata = {
   title: "Về chúng tôi",
   description:
-    "WEBVAULT — Marketplace chuyên cung cấp website mẫu Next.js cao cấp, đã build sẵn, deploy 1-click trên Vercel.",
+    "RISE — Reliable · Innovative · Scalable · Efficient. Marketplace website mẫu Next.js cao cấp, đã build sẵn, deploy 1-click trên Vercel.",
   alternates: { canonical: "/ve-chung-toi" },
 };
 

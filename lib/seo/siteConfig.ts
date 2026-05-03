@@ -1,8 +1,8 @@
 export const SITE_NAME =
-  process.env.NEXT_PUBLIC_SITE_NAME || "WEBVAULT";
-export const SITE_TAGLINE = "Marketplace website mẫu Next.js cao cấp";
+  process.env.NEXT_PUBLIC_SITE_NAME || "RISE";
+export const SITE_TAGLINE = "Reliable · Innovative · Scalable · Efficient";
 export const SITE_DESCRIPTION =
-  "WEBVAULT — Mua website mẫu Next.js / Tailwind chất lượng cao: landing page, ecommerce, portfolio, SaaS dashboard, blog. Demo Vercel sẵn, code sạch, deploy 1-click.";
+  "RISE — Marketplace website mẫu Next.js cao cấp: Reliable (đáng tin), Innovative (hiện đại), Scalable (mở rộng tốt), Efficient (hiệu năng cao). Landing page, ecommerce, portfolio, SaaS dashboard, blog — demo Vercel sẵn, code sạch, deploy 1-click.";
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||

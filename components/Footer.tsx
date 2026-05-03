@@ -75,7 +75,6 @@ export default async function Footer() {
                 <a href={`mailto:${EMAIL}`}>✉ {EMAIL}</a>
               </li>
             ) : null}
-            <li><Link href="/admin/login">🔒 Admin</Link></li>
           </ul>
         </div>
       </div>
