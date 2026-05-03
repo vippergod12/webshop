@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllCategories, getAllProducts } from "@/lib/data";
 import ProductCard from "@/components/ProductCard";
+import FilterLink, { FilterScope } from "@/components/FilterLink";
+import ShopGrid from "@/components/ShopGrid";
+import SortSelect from "@/components/SortSelect";
+import SearchInput from "@/components/SearchInput";
 
 export const revalidate = 60;
 
@@ -13,11 +17,11 @@ export const metadata: Metadata = {
 };
 
 const SORT_OPTIONS = [
-  { v: "newest", label: "Mới nhất" },
-  { v: "popular", label: "Phổ biến" },
-  { v: "rating", label: "Top đánh giá" },
-  { v: "price_asc", label: "Giá: thấp → cao" },
-  { v: "price_desc", label: "Giá: cao → thấp" },
+  { value: "newest", label: "Mới nhất" },
+  { value: "popular", label: "Phổ biến" },
+  { value: "rating", label: "Top đánh giá" },
+  { value: "price_asc", label: "Giá: thấp → cao" },
+  { value: "price_desc", label: "Giá: cao → thấp" },
 ];
 
 export default async function ProductsPage({
@@ -45,7 +49,7 @@ export default async function ProductsPage({
   };
 
   return (
-    <>
+    <FilterScope>
       <section className="page-hero">
         <div className="container">
           <span className="page-hero__eyebrow">CỬA HÀNG</span>
@@ -57,19 +61,11 @@ export default async function ProductsPage({
             Lọc theo danh mục, đánh giá, giá để tìm template phù hợp nhất.
           </p>
 
-          <form className="search-bar" action="/san-pham">
-            <input
-              type="search"
-              name="q"
-              defaultValue={q || ""}
-              placeholder="Tìm theo tên, mô tả, công nghệ..."
-            />
-            {category ? <input type="hidden" name="category" value={category} /> : null}
-            {sort ? <input type="hidden" name="sort" value={sort} /> : null}
-            <button type="submit" className="btn btn--primary">
-              Tìm kiếm
-            </button>
-          </form>
+          <SearchInput
+            initialValue={q || ""}
+            category={category}
+            sort={sort}
+          />
         </div>
       </section>
 
@@ -79,38 +75,22 @@ export default async function ProductsPage({
             <h3>Danh mục</h3>
             <ul className="shop__list">
               <li>
-                <Link
+                <FilterLink
                   href={buildHref({ category: null })}
                   className={!category ? "is-active" : ""}
                 >
                   Tất cả
-                </Link>
+                </FilterLink>
               </li>
               {categories.map((c) => (
                 <li key={c.id}>
-                  <Link
+                  <FilterLink
                     href={buildHref({ category: c.slug })}
                     className={category === c.slug ? "is-active" : ""}
                   >
                     {c.name}
                     <span className="shop__count">{c.product_count || 0}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="shop__group">
-            <h3>Sắp xếp</h3>
-            <ul className="shop__list">
-              {SORT_OPTIONS.map((s) => (
-                <li key={s.v}>
-                  <Link
-                    href={buildHref({ sort: s.v })}
-                    className={sort === s.v ? "is-active" : ""}
-                  >
-                    {s.label}
-                  </Link>
+                  </FilterLink>
                 </li>
               ))}
             </ul>
@@ -119,22 +99,45 @@ export default async function ProductsPage({
 
         <div className="shop__main">
           <div className="shop__bar">
-            <strong>{products.length}</strong> kết quả
-            {q ? <> cho "<em>{q}</em>"</> : null}
-            {category ? (
-              <span className="shop__chip">
-                {categories.find((c) => c.slug === category)?.name || category}
-                <Link href={buildHref({ category: null })}>×</Link>
-              </span>
-            ) : null}
+            <div className="shop__bar-left">
+              <strong>{products.length}</strong>
+              <span>kết quả</span>
+              {q ? (
+                <span className="shop__chip">
+                  &quot;{q}&quot;
+                  <FilterLink href={buildHref({ q: null })} aria-label="Bỏ từ khóa">
+                    ×
+                  </FilterLink>
+                </span>
+              ) : null}
+              {category ? (
+                <span className="shop__chip">
+                  {categories.find((c) => c.slug === category)?.name || category}
+                  <FilterLink href={buildHref({ category: null })} aria-label="Bỏ lọc danh mục">
+                    ×
+                  </FilterLink>
+                </span>
+              ) : null}
+            </div>
+            <div className="shop__bar-right">
+              <SortSelect
+                value={sort}
+                options={SORT_OPTIONS.map((o) => ({
+                  ...o,
+                  href: buildHref({ sort: o.value }),
+                }))}
+              />
+            </div>
           </div>
 
           {products.length ? (
-            <div className="grid grid--cards">
-              {products.map((p, i) => (
-                <ProductCard key={p.id} product={p} priority={i < 4} />
-              ))}
-            </div>
+            <ShopGrid>
+              <div className="grid grid--cards">
+                {products.map((p, i) => (
+                  <ProductCard key={p.id} product={p} priority={i < 4} />
+                ))}
+              </div>
+            </ShopGrid>
           ) : (
             <div className="empty-state empty-state--soft">
               <h3>Không tìm thấy sản phẩm</h3>
@@ -146,6 +149,6 @@ export default async function ProductsPage({
           )}
         </div>
       </section>
-    </>
+    </FilterScope>
   );
 }
