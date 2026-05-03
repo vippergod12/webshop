@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { safeImage } from "@/lib/utils/image";
+import SafeImage from "@/components/SafeImage";
 
 type Props = { images: string[]; alt: string };
 
@@ -12,7 +12,15 @@ export default function ProductGallery({ images, alt }: Props) {
   return (
     <div className="gallery">
       <div className="gallery__main">
-        <img src={safeImage(safe[active])} alt={alt} />
+        <SafeImage
+          src={safe[active]}
+          alt={alt}
+          width={1280}
+          height={800}
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 1024px) 100vw, 720px"
+        />
       </div>
       {safe.length > 1 ? (
         <div className="gallery__thumbs">
@@ -24,7 +32,14 @@ export default function ProductGallery({ images, alt }: Props) {
               className={`gallery__thumb ${i === active ? "is-active" : ""}`}
               aria-label={`Ảnh ${i + 1}`}
             >
-              <img src={safeImage(img)} alt="" />
+              <SafeImage
+                src={img}
+                alt=""
+                width={120}
+                height={80}
+                sizes="120px"
+                loading="lazy"
+              />
             </button>
           ))}
         </div>

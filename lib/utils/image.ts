@@ -13,10 +13,22 @@ export const PLACEHOLDER_IMG =
     </svg>`
   );
 
+export const BLUR_DATA_URL =
+  "data:image/svg+xml;base64," +
+  Buffer.from(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6'>
+      <rect width='8' height='6' fill='#0b1020'/>
+    </svg>`
+  ).toString("base64");
+
 export function safeImage(url: string | null | undefined): string {
   if (!url) return PLACEHOLDER_IMG;
   if (url.startsWith("http") || url.startsWith("data:") || url.startsWith("/")) {
     return url;
   }
   return PLACEHOLDER_IMG;
+}
+
+export function isOptimizable(url: string): boolean {
+  return !url.startsWith("data:");
 }

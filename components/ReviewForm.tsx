@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import StarRating from "./StarRating";
+import StarRatingEditable from "./StarRatingEditable";
 import { apiFetch } from "@/lib/api-client";
 
 type Props = { productId: number };
@@ -78,7 +78,7 @@ export default function ReviewForm({ productId }: Props) {
 
       <div className="review-form__rating">
         <span className="review-form__label">Đánh giá tổng:</span>
-        <StarRating value={rating} editable size={26} onChange={setRating} />
+        <StarRatingEditable value={rating} size={26} onChange={setRating} />
         <span className="review-form__rating-num">{rating}/5</span>
       </div>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Category } from "@/lib/types";
-import { safeImage } from "@/lib/utils/image";
+import SafeImage from "../SafeImage";
+import SmartLink from "../SmartLink";
 
 type Props = { categories: Category[] };
 
@@ -23,12 +24,18 @@ export default function CategoriesBento({ categories }: Props) {
 
         <div className="bento">
           {items.map((c, i) => (
-            <Link
+            <SmartLink
               key={c.id}
               href={`/danh-muc/${c.slug}`}
               className={`bento__cell bento__cell--${i + 1}`}
             >
-              <img src={safeImage(c.image_url)} alt={c.name} />
+              <SafeImage
+                src={c.image_url}
+                alt={c.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                style={{ objectFit: "cover" }}
+              />
               <div className="bento__overlay" />
               <div className="bento__body">
                 <span className="bento__count">
@@ -38,7 +45,7 @@ export default function CategoriesBento({ categories }: Props) {
                 {c.description ? <p>{c.description}</p> : null}
                 <span className="bento__cta">Xem ngay →</span>
               </div>
-            </Link>
+            </SmartLink>
           ))}
         </div>
       </div>

@@ -1,61 +1,112 @@
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import {
-  getHomeBundle,
+  getFeaturedProducts,
+  getHeroProduct,
+  getLatestProducts,
   getPublishedProductCount,
   getRecentApprovedReviews,
+  getAllCategories,
 } from "@/lib/data";
 import Hero from "@/components/home/Hero";
 import Marquee from "@/components/home/Marquee";
-import CategoriesBento from "@/components/home/CategoriesBento";
-import FeaturedGrid from "@/components/home/FeaturedGrid";
 import Stats from "@/components/home/Stats";
-import Process from "@/components/home/Process";
-import Testimonials from "@/components/home/Testimonials";
-import BigCTA from "@/components/home/BigCTA";
+import FeaturedGrid from "@/components/home/FeaturedGrid";
+
+const CategoriesBento = dynamic(() => import("@/components/home/CategoriesBento"));
+const Process = dynamic(() => import("@/components/home/Process"));
+const Testimonials = dynamic(() => import("@/components/home/Testimonials"));
+const BigCTA = dynamic(() => import("@/components/home/BigCTA"));
 
 export const revalidate = 60;
 
-export default async function HomePage() {
-  const [bundleResult, reviews, totalCount] = await Promise.all([
-    getHomeBundle().catch((err) => {
-      console.error("[home] failed to load bundle", err);
-      return null;
-    }),
-    getRecentApprovedReviews(6),
-    getPublishedProductCount(),
+function SectionSkeleton() {
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="skeleton skeleton--head" />
+        <div className="grid grid--cards">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton skeleton--card" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+async function HeroBlock() {
+  const [hero, totalCount] = await Promise.all([
+    getHeroProduct().catch(() => null),
+    getPublishedProductCount().catch(() => 0),
   ]);
+  return <Hero hero={hero} productCount={totalCount} />;
+}
 
-  if (!bundleResult) {
-    return (
-      <section className="container empty-state">
-        <h1>WEBVAULT</h1>
-        <p>
-          Database chưa được khởi tạo. Hãy chạy{" "}
-          <code>npm run db:init && npm run db:seed</code> rồi reload trang.
-        </p>
-      </section>
-    );
-  }
+async function CategoriesBlock() {
+  const categories = await getAllCategories().catch(() => []);
+  return <CategoriesBento categories={categories} />;
+}
 
+async function FeaturedBlock() {
+  const products = await getFeaturedProducts(8).catch(() => []);
+  if (!products.length) return null;
+  return (
+    <FeaturedGrid
+      eyebrow="NỔI BẬT"
+      title="Website mẫu được yêu thích nhất"
+      products={products}
+      more={{ href: "/san-pham", label: "Xem tất cả" }}
+    />
+  );
+}
+
+async function LatestBlock() {
+  const products = await getLatestProducts(8).catch(() => []);
+  if (!products.length) return null;
+  return (
+    <FeaturedGrid
+      eyebrow="MỚI NHẤT"
+      title="Cập nhật mới nhất từ WEBVAULT"
+      products={products}
+      more={{ href: "/san-pham?sort=newest", label: "Xem thêm" }}
+    />
+  );
+}
+
+async function TestimonialsBlock() {
+  const reviews = await getRecentApprovedReviews(6).catch(() => []);
+  return <Testimonials reviews={reviews} />;
+}
+
+export default function HomePage() {
   return (
     <>
-      <Hero hero={bundleResult.hero} productCount={totalCount} />
+      <Suspense fallback={<div className="hero hero--skeleton" />}>
+        <HeroBlock />
+      </Suspense>
+
       <Marquee />
       <Stats />
-      <CategoriesBento categories={bundleResult.categories} />
-      <FeaturedGrid
-        eyebrow="NỔI BẬT"
-        title="Website mẫu được yêu thích nhất"
-        products={bundleResult.featured}
-        more={{ href: "/san-pham", label: "Xem tất cả" }}
-      />
-      <FeaturedGrid
-        eyebrow="MỚI NHẤT"
-        title="Cập nhật mới nhất từ WEBVAULT"
-        products={bundleResult.latest}
-        more={{ href: "/san-pham?sort=newest", label: "Xem thêm" }}
-      />
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <CategoriesBlock />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <FeaturedBlock />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <LatestBlock />
+      </Suspense>
+
       <Process />
-      <Testimonials reviews={reviews} />
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <TestimonialsBlock />
+      </Suspense>
+
       <BigCTA />
     </>
   );

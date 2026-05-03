@@ -131,8 +131,8 @@ export default async function ProductsPage({
 
           {products.length ? (
             <div className="grid grid--cards">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
+              {products.map((p, i) => (
+                <ProductCard key={p.id} product={p} priority={i < 4} />
               ))}
             </div>
           ) : (

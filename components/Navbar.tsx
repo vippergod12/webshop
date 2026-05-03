@@ -7,7 +7,6 @@ import { SITE_NAME } from "@/lib/seo/siteConfig";
 
 const NAV = [
   { href: "/", label: "Trang chủ" },
-  { href: "/san-pham", label: "Sản phẩm" },
   { href: "/ve-chung-toi", label: "Về chúng tôi" },
   { href: "/lien-he", label: "Liên hệ" },
 ];
@@ -18,10 +17,20 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 16);
+        raf = 0;
+      });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
@@ -70,7 +79,10 @@ export default function Navbar() {
         </nav>
 
         <div className="navbar__actions">
-          <Link href="/lien-he" className="btn btn--ghost navbar__cta-ghost">
+          <Link
+            href="/lien-he"
+            className="btn btn--ghost navbar__cta-ghost"
+          >
             Tư vấn
           </Link>
           <Link href="/san-pham" className="btn btn--primary">
@@ -101,8 +113,11 @@ export default function Navbar() {
               {n.label}
             </Link>
           ))}
-          <Link href="/lien-he" className="btn btn--primary navbar__drawer-cta">
-            Liên hệ tư vấn
+          <Link
+            href="/san-pham"
+            className="btn btn--primary navbar__drawer-cta"
+          >
+            Khám phá kho web
           </Link>
         </div>
       ) : null}

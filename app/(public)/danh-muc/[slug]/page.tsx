@@ -45,8 +45,8 @@ export default async function CategoryPage({ params }: PageProps) {
       <section className="container">
         {products.length ? (
           <div className="grid grid--cards">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {products.map((p, i) => (
+              <ProductCard key={p.id} product={p} priority={i < 4} />
             ))}
           </div>
         ) : (

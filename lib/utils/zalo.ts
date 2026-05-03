@@ -8,8 +8,8 @@ function normalizePhone(phone: string): string {
 }
 
 export function buildZaloUrl(message?: string): string {
-  if (ZALO_URL) return ZALO_URL;
-  const phone = normalizePhone(ZALO_PHONE || "");
+  if (ZALO_URL && /^https?:\/\//i.test(ZALO_URL)) return ZALO_URL;
+  const phone = normalizePhone(ZALO_URL || ZALO_PHONE || "");
   if (!phone) return "#";
   const base = `https://zalo.me/${phone}`;
   if (!message) return base;

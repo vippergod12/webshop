@@ -12,9 +12,9 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo/siteConfig";
 import { discountPercent, formatVND } from "@/lib/utils/format";
 import { buildZaloUrl } from "@/lib/utils/zalo";
 import StarRating from "@/components/StarRating";
-import ReviewList from "@/components/ReviewList";
-import ReviewForm from "@/components/ReviewForm";
 import ProductCard from "@/components/ProductCard";
+import ReviewList from "@/components/ReviewList";
+import LazyReviewForm from "@/components/LazyReviewForm";
 import ProductGallery from "./ProductGallery";
 
 export const revalidate = 60;
@@ -218,7 +218,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <ReviewList reviews={reviews} />
           </div>
           <div>
-            <ReviewForm productId={product.id} />
+            <LazyReviewForm productId={product.id} />
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { discountPercent, formatVND } from "@/lib/utils/format";
-import { safeImage } from "@/lib/utils/image";
+import SafeImage from "../SafeImage";
 import StarRating from "../StarRating";
 
 type Props = { hero: Product | null; productCount?: number };
@@ -58,13 +58,14 @@ export default function Hero({ hero, productCount = 0 }: Props) {
           {hero ? (
             <Link href={`/san-pham/${hero.slug}`} className="hero__card">
               <div className="hero__card-media">
-                <img
-                  src={safeImage(hero.thumbnail || hero.images[0])}
+                <SafeImage
+                  src={hero.thumbnail || hero.images[0]}
                   alt={hero.name}
                   width={920}
                   height={575}
-                  decoding="async"
+                  priority
                   fetchPriority="high"
+                  sizes="(max-width: 1024px) 100vw, 920px"
                 />
                 {discountPercent(hero.price, hero.sale_price) > 0 ? (
                   <span className="hero__card-badge">

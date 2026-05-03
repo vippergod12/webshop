@@ -1,32 +1,43 @@
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { discountPercent, formatVND } from "@/lib/utils/format";
-import { safeImage } from "@/lib/utils/image";
+import SafeImage from "./SafeImage";
+import SmartLink from "./SmartLink";
 import StarRating from "./StarRating";
 
-type Props = { product: Product; compact?: boolean };
+type Props = {
+  product: Product;
+  compact?: boolean;
+  /** Mark above-the-fold cards (e.g. first row) so the image is preloaded. */
+  priority?: boolean;
+};
 
-export default function ProductCard({ product, compact }: Props) {
+const CARD_SIZES =
+  "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1440px) 33vw, 320px";
+
+export default function ProductCard({ product, compact, priority }: Props) {
   const discount = discountPercent(product.price, product.sale_price);
-  const cover = safeImage(product.thumbnail || product.images[0]);
+  const cover = product.thumbnail || product.images[0];
   const finalPrice = product.sale_price ?? product.price;
   const rating = product.avg_rating || 0;
   const reviewCount = product.review_count || 0;
+  const detailHref = `/san-pham/${product.slug}`;
 
   return (
     <article className={`pcard ${compact ? "pcard--compact" : ""}`}>
-      <Link
-        href={`/san-pham/${product.slug}`}
+      <SmartLink
+        href={detailHref}
         className="pcard__media"
         aria-label={product.name}
       >
-        <img
+        <SafeImage
           src={cover}
           alt={`Ảnh xem trước ${product.name}`}
-          loading="lazy"
-          decoding="async"
           width={640}
           height={400}
+          sizes={CARD_SIZES}
+          priority={priority}
+          loading={priority ? undefined : "lazy"}
         />
         {discount > 0 ? (
           <span className="pcard__badge pcard__badge--sale">-{discount}%</span>
@@ -37,7 +48,7 @@ export default function ProductCard({ product, compact }: Props) {
         <div className="pcard__overlay">
           <span className="pcard__overlay-text">Xem chi tiết →</span>
         </div>
-      </Link>
+      </SmartLink>
 
       <div className="pcard__body">
         <div className="pcard__meta">
@@ -45,6 +56,7 @@ export default function ProductCard({ product, compact }: Props) {
             <Link
               href={`/danh-muc/${product.category_slug}`}
               className="pcard__cat"
+              prefetch={false}
             >
               {product.category_name}
             </Link>
@@ -59,7 +71,7 @@ export default function ProductCard({ product, compact }: Props) {
         </div>
 
         <h3 className="pcard__title">
-          <Link href={`/san-pham/${product.slug}`}>{product.name}</Link>
+          <SmartLink href={detailHref}>{product.name}</SmartLink>
         </h3>
 
         {product.short_description ? (

@@ -174,40 +174,42 @@ export const getProductBySlug = cache(
   }
 );
 
-export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
-  const query = `${PRODUCT_SELECT}
-    WHERE p.is_published = TRUE AND p.is_featured = TRUE
-    ORDER BY p.sort_order ASC, p.created_at DESC
-    LIMIT $1`;
-  const rows = (await sql(query, [limit])) as any[];
-  return rows.map(mapProduct);
-}
+export const getFeaturedProducts = cache(
+  async (limit = 8): Promise<Product[]> => {
+    const query = `${PRODUCT_SELECT}
+      WHERE p.is_published = TRUE AND p.is_featured = TRUE
+      ORDER BY p.sort_order ASC, p.created_at DESC
+      LIMIT $1`;
+    const rows = (await sql(query, [limit])) as any[];
+    return rows.map(mapProduct);
+  }
+);
 
-export async function getHeroProduct(): Promise<Product | null> {
+export const getHeroProduct = cache(async (): Promise<Product | null> => {
   const query = `${PRODUCT_SELECT}
     WHERE p.is_published = TRUE AND p.is_hero = TRUE
     ORDER BY p.updated_at DESC LIMIT 1`;
   const rows = (await sql(query, [])) as any[];
   return rows.length ? mapProduct(rows[0]) : null;
-}
+});
 
-export async function getLatestProducts(limit = 8): Promise<Product[]> {
+export const getLatestProducts = cache(async (limit = 8): Promise<Product[]> => {
   const query = `${PRODUCT_SELECT}
     WHERE p.is_published = TRUE
     ORDER BY p.created_at DESC
     LIMIT $1`;
   const rows = (await sql(query, [limit])) as any[];
   return rows.map(mapProduct);
-}
+});
 
-export async function getTopRatedProducts(limit = 6): Promise<Product[]> {
+export const getTopRatedProducts = cache(async (limit = 6): Promise<Product[]> => {
   const query = `${PRODUCT_SELECT}
     WHERE p.is_published = TRUE AND COALESCE(rs.review_count, 0) > 0
     ORDER BY COALESCE(rs.avg_rating, 0) DESC, COALESCE(rs.review_count, 0) DESC
     LIMIT $1`;
   const rows = (await sql(query, [limit])) as any[];
   return rows.map(mapProduct);
-}
+});
 
 export async function getRelatedProducts(
   product: Product,
@@ -256,7 +258,7 @@ export async function getAllProductSlugs(limit = 5000): Promise<
   }
 }
 
-export async function getPublishedProductCount(): Promise<number> {
+export const getPublishedProductCount = cache(async (): Promise<number> => {
   try {
     const rows = (await sql`
       SELECT COUNT(*)::int AS n FROM products WHERE is_published = TRUE
@@ -265,7 +267,7 @@ export async function getPublishedProductCount(): Promise<number> {
   } catch {
     return 0;
   }
-}
+});
 
 // ---------- REVIEWS ----------
 export async function getApprovedReviews(
@@ -281,21 +283,23 @@ export async function getApprovedReviews(
   return rows.map(mapReview);
 }
 
-export async function getRecentApprovedReviews(limit = 6): Promise<Review[]> {
-  try {
-    const rows = (await sql`
-      SELECT r.*, p.slug AS product_slug, p.name AS product_name
-      FROM reviews r
-      LEFT JOIN products p ON p.id = r.product_id
-      WHERE r.is_approved = TRUE
-      ORDER BY r.created_at DESC
-      LIMIT ${limit}
-    `) as any[];
-    return rows.map(mapReview);
-  } catch {
-    return [];
+export const getRecentApprovedReviews = cache(
+  async (limit = 6): Promise<Review[]> => {
+    try {
+      const rows = (await sql`
+        SELECT r.*, p.slug AS product_slug, p.name AS product_name
+        FROM reviews r
+        LEFT JOIN products p ON p.id = r.product_id
+        WHERE r.is_approved = TRUE
+        ORDER BY r.created_at DESC
+        LIMIT ${limit}
+      `) as any[];
+      return rows.map(mapReview);
+    } catch {
+      return [];
+    }
   }
-}
+);
 
 export async function getAllReviews(opts?: {
   approvedOnly?: boolean;

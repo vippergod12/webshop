@@ -1,8 +1,15 @@
 export default function PublicLoading() {
   return (
-    <div className="page-loading">
-      <span className="spinner" aria-hidden />
-      <p>Đang tải nội dung…</p>
+    <div className="route-skeleton">
+      <div className="container">
+        <div className="skeleton skeleton--head" />
+        <div className="skeleton skeleton--lead" />
+        <div className="grid grid--cards" aria-hidden>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="skeleton skeleton--card" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

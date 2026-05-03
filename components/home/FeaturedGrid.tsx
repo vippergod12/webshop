@@ -26,8 +26,8 @@ export default function FeaturedGrid({ title, eyebrow, products, more }: Props) 
           ) : null}
         </header>
         <div className="grid grid--cards">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {products.map((p, i) => (
+            <ProductCard key={p.id} product={p} priority={i < 2} />
           ))}
         </div>
       </div>
