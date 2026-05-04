@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/api-client";
 import type { Category, Product } from "@/lib/types";
 import Modal from "@/components/Modal";
 import ImagePicker from "@/components/ImagePicker";
+import SingleImagePicker from "@/components/SingleImagePicker";
 import { formatVND } from "@/lib/utils/format";
 import { slugify } from "@/lib/utils/slug";
 import { safeImage } from "@/lib/utils/image";
@@ -440,17 +441,13 @@ export default function AdminProductsPage() {
               />
             </label>
 
-            <label className="field field--span-3">
-              <span>Thumbnail URL</span>
-              <input
-                type="url"
+            <div className="field field--span-3">
+              <SingleImagePicker
+                label="Ảnh thumbnail"
                 value={form.thumbnail}
-                onChange={(e) =>
-                  setForm({ ...form, thumbnail: e.target.value })
-                }
-                placeholder="https://..."
+                onChange={(thumbnail) => setForm({ ...form, thumbnail })}
               />
-            </label>
+            </div>
 
             <div className="field field--span-3">
               <ImagePicker

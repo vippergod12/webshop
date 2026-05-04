@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { apiFetch } from "@/lib/api-client";
 import { safeImage } from "@/lib/utils/image";
 
 type Props = {
@@ -11,15 +12,39 @@ type Props = {
 };
 
 export default function ImagePicker({ values, onChange, label, max = 12 }: Props) {
-  const [draft, setDraft] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function add() {
-    const url = draft.trim();
-    if (!url) return;
-    if (values.includes(url)) return;
-    if (values.length >= max) return;
-    onChange([...values, url]);
-    setDraft("");
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setError(null);
+
+    const remaining = Math.max(0, max - values.length);
+    if (remaining === 0) {
+      setError(`Tối đa ${max} ảnh.`);
+      return;
+    }
+
+    const picked = Array.from(fileList).slice(0, remaining);
+    const fd = new FormData();
+    for (const f of picked) fd.append("files", f);
+
+    setUploading(true);
+    try {
+      const res = await apiFetch<{ urls: string[] }>("/api/upload", {
+        method: "POST",
+        auth: true,
+        body: fd,
+      });
+      const newUrls = (res.urls || []).filter((u) => !values.includes(u));
+      if (newUrls.length) onChange([...values, ...newUrls]);
+    } catch (err: any) {
+      setError(err?.message || "Tải ảnh thất bại");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
   }
 
   function remove(idx: number) {
@@ -34,26 +59,33 @@ export default function ImagePicker({ values, onChange, label, max = 12 }: Props
     onChange(next);
   }
 
+  const canAdd = values.length < max;
+
   return (
     <div className="image-picker">
       {label ? <label className="field__label">{label}</label> : null}
       <div className="image-picker__row">
         <input
-          type="url"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="https://..."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              add();
-            }
-          }}
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          disabled={uploading || !canAdd}
+          onChange={(e) => handleFiles(e.target.files)}
         />
-        <button type="button" className="btn btn--ghost" onClick={add}>
-          + Thêm
+        <button
+          type="button"
+          className="btn btn--ghost"
+          disabled={uploading || !canAdd}
+          onClick={() => inputRef.current?.click()}
+        >
+          {uploading ? "Đang tải…" : "+ Chọn ảnh"}
         </button>
       </div>
+      {error ? <p className="image-picker__error">{error}</p> : null}
+      <p className="image-picker__hint">
+        {values.length}/{max} ảnh — JPG / PNG / WebP / AVIF, tối đa 8MB mỗi tệp.
+      </p>
       {values.length ? (
         <ul className="image-picker__list">
           {values.map((u, i) => (
