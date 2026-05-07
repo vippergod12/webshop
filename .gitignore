@@ -10,7 +10,3 @@ build/
 .vercel
 .turbo
 next-env.d.ts
-
-# Admin-uploaded images (runtime files)
-public/uploads/
-!public/uploads/.gitkeep

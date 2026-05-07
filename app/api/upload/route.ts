@@ -1,6 +1,5 @@
 import { randomBytes } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 import { requireAdmin } from "@/lib/server/auth";
 import { badRequest, json, serverError } from "@/lib/server/http";
 
@@ -43,6 +42,16 @@ export async function POST(req: Request) {
     const auth = requireAdmin(req);
     if (auth instanceof Response) return auth;
 
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      return json(
+        {
+          error:
+            "Chưa cấu hình Vercel Blob. Vui lòng bật Blob storage trong Vercel dashboard và thêm BLOB_READ_WRITE_TOKEN vào .env (xem README).",
+        },
+        { status: 503 }
+      );
+    }
+
     let form: FormData;
     try {
       form = await req.formData();
@@ -61,15 +70,14 @@ export async function POST(req: Request) {
 
     if (!files.length) return badRequest("Không có tệp nào được tải lên");
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadsDir, { recursive: true });
-
     const urls: string[] = [];
     for (const file of files) {
       if (file.size === 0) continue;
       if (file.size > MAX_BYTES) {
         return badRequest(
-          `Tệp "${file.name}" vượt quá giới hạn ${Math.round(MAX_BYTES / 1024 / 1024)}MB`
+          `Tệp "${file.name}" vượt quá giới hạn ${Math.round(
+            MAX_BYTES / 1024 / 1024
+          )}MB`
         );
       }
       if (file.type && !ALLOWED_MIME.has(file.type)) {
@@ -79,13 +87,16 @@ export async function POST(req: Request) {
       const ext = safeExt(file);
       const id = randomBytes(8).toString("hex");
       const stamp = Date.now().toString(36);
-      const filename = `${stamp}-${id}.${ext}`;
-      const fullPath = path.join(uploadsDir, filename);
+      const key = `products/${stamp}-${id}.${ext}`;
 
-      const buf = Buffer.from(await file.arrayBuffer());
-      await writeFile(fullPath, buf);
+      const blob = await put(key, file, {
+        access: "public",
+        contentType: file.type || undefined,
+        addRandomSuffix: false,
+        cacheControlMaxAge: 60 * 60 * 24 * 365,
+      });
 
-      urls.push(`/uploads/${filename}`);
+      urls.push(blob.url);
     }
 
     if (!urls.length) return badRequest("Không có tệp hợp lệ");

@@ -95,7 +95,26 @@ Mở `.env` và điền:
 | `NEXT_PUBLIC_HOTLINE`             | (Tuỳ chọn) Hotline. Mặc định = ZALO_PHONE                                |
 | `NEXT_PUBLIC_EMAIL`               | (Tuỳ chọn) Email liên hệ                                                 |
 | `NEXT_PUBLIC_ADDRESS`             | (Tuỳ chọn) Địa chỉ văn phòng hiển thị footer                             |
+| `BLOB_READ_WRITE_TOKEN`           | Token Vercel Blob để admin upload ảnh sản phẩm (xem mục _Vercel Blob_)   |
 | `WARM_SECRET`                     | (Tuỳ chọn) Secret bảo vệ endpoint `/api/_warm` cho cron                  |
+
+## Vercel Blob (lưu ảnh sản phẩm)
+
+Trang `/admin/products` cho upload ảnh thumbnail + gallery từ máy lên. Backend dùng [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) (CDN, free tier 5GB / 1GB bandwidth tháng).
+
+**Setup 2 phút:**
+
+1. Vào dự án trên [Vercel Dashboard](https://vercel.com) → tab **Storage** → **Create Database** → chọn **Blob** → đặt tên (vd `rise-images`) → **Create**.
+2. Vercel tự thêm `BLOB_READ_WRITE_TOKEN` vào tất cả environment (Production / Preview / Development).
+3. Pull token về máy để chạy local:
+   ```bash
+   npx vercel link        # liên kết folder với project Vercel (lần đầu)
+   npx vercel env pull .env
+   ```
+   (hoặc copy thủ công từ Dashboard → Settings → Environment Variables)
+4. Restart `npm run dev`. Vào `/admin/products` → "+ Thêm sản phẩm" → chọn ảnh từ máy.
+
+> Nếu chưa cấu hình Blob, API `/api/upload` trả 503 với thông báo rõ ràng thay vì 500.
 
 ## Khởi tạo database
 
