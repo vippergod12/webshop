@@ -451,9 +451,20 @@ export default function AdminProductsPage() {
 
             <div className="field field--span-3">
               <ImagePicker
-                label="Ảnh gallery"
+                label="Ảnh gallery (kéo thả nhiều ảnh, kéo để sắp xếp)"
                 values={form.images}
-                onChange={(images) => setForm({ ...form, images })}
+                thumbnail={form.thumbnail}
+                onPickThumbnail={(url) => setForm({ ...form, thumbnail: url })}
+                onChange={(images) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    images,
+                    // Tự lấy ảnh đầu làm thumbnail nếu admin chưa chọn
+                    thumbnail: prev.thumbnail || images[0] || "",
+                  }))
+                }
+                hint="Ảnh đầu tiên sẽ là Cover. Click ★ trên 1 ảnh để dùng làm thumbnail."
+                max={20}
               />
             </div>
 
